@@ -1,58 +1,57 @@
-# eigenbeleg-generator-frontend
+# Eigenbeleg Generator – Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Frontend des Webtech-Projekts „Eigenbeleg Generator“ (HTW Berlin, Team 31): eine Web-App, mit der Nutzer Eigenbelege erfassen, als PDF erzeugen und in einem persönlichen Verlauf wiederfinden können.
 
-## Recommended IDE Setup
+- Backend-Repository: <https://github.com/oguzhankc/Eigenbeleg-Generator>
+- Use Cases: siehe `docs/use-cases.md` im Backend-Repository
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+> **Hinweis:** Hochschulprojekt mit fiktiven Testdaten. Die Anwendung ersetzt keine Steuerberatung.
 
-## Recommended Browser Setup
+## Aktueller Stand: Meilenstein M2
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+| M2-Anforderung | Umsetzung |
+| --- | --- |
+| Vue.js-App auf GitHub | Vue 3 mit TypeScript und Vite |
+| Eigene Komponente | `src/components/ReceiptList.vue` |
+| Liste von Beispiel-Entitäten mit `v-for` | `ReceiptList.vue` rendert die Beispielbelege aus `src/data/sampleReceipts.ts` mit `v-for` als Tabelle (Use Case UC-06 „Belegverlauf anzeigen“) |
 
-## Type Support for `.vue` Imports in TS
+Die Beispielbelege haben dieselben Felder wie die Entity `Receipt` im Backend (`src/types/receipt.ts`). Ab M3 werden sie über `GET /api/receipts` vom Backend geladen.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Projektstruktur
 
-## Customize configuration
+```text
+src/
+├── App.vue                     Seitenrahmen und Seite „Meine Belege“
+├── components/
+│   ├── ReceiptList.vue         Belegliste (v-for), sortiert, mit Summe und Leerzustand
+│   └── __tests__/              Komponententests (Vitest)
+├── data/sampleReceipts.ts      Beispielbelege für M2
+├── types/receipt.ts            TypeScript-Typ der Entity Receipt
+└── utils/format.ts             Euro-, Datums- und Bezeichnungsformatierung
+```
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Lokal starten
 
-## Project Setup
+Voraussetzung: Node.js 22.18 oder neuer (bzw. 24.12 oder neuer).
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+Die App läuft danach unter <http://localhost:5173>.
 
-```sh
-npm run build
-```
+| Befehl | Zweck |
+| --- | --- |
+| `npm run dev` | Entwicklungsserver mit Hot Reload |
+| `npm run build` | Typprüfung und Produktions-Build nach `dist/` |
+| `npm run test:unit -- --run` | Unit-Tests einmalig ausführen |
+| `npm run lint` | Oxlint und ESLint |
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## Kursvorlage und M2-Abgabe
 
-```sh
-npm run test:unit
-```
+Das Grundgerüst stammt aus der [Vorlage von Prof. Wider](https://github.com/ProfWider/meinetodoliste-frontend) und enthält TypeScript, Vue Router, Vitest, ESLint/Oxlint und Prettier. Die eigene Belegliste ist unter `/` erreichbar.
 
-### Lint with [ESLint](https://eslint.org/)
+Frontend-Repository: https://github.com/Surhay276/eigenbeleg-generator-frontend
 
-```sh
-npm run lint
-```
-
-## Kursvorlage
-
-Grundgerüst nach [Prof. Wider](https://github.com/ProfWider/meinetodoliste-frontend): Vue 3, TypeScript, Vue Router, Vitest, ESLint/Oxlint und Prettier; mit Vue-Beispielcode und ohne experimentelle Features.
+M2: Vue-App auf GitHub, eigene Unterkomponente `ReceiptList.vue` und Beispiel-Entitäten per `v-for`. Abzugeben ist der Repository-Link bis 8. November 2026, 23:59 Uhr ([Moodle](https://moodle.htw-berlin.de/mod/assign/view.php?id=2256070)).

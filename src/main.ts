@@ -1,11 +1,5 @@
-import './assets/main.css'
-
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp, h } from 'vue'
+import { RouterView } from 'vue-router'
 import router from './router'
 
-const app = createApp(App)
-
-app.use(router)
-
-app.mount('#app')
+createApp({ render: () => h(RouterView) }).use(router).mount('#app')
