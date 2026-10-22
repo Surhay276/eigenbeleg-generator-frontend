@@ -18,6 +18,8 @@ function receipt(overrides: Partial<Receipt>): Receipt {
     vatRate: 'REGELSATZ_19',
     reason: 'Keine Quittung',
     paymentMethod: 'BAR',
+    issuerName: null,
+    issuerAddress: null,
     createdAt: '2026-10-01T09:15:00Z',
     ownerId: null,
     ...overrides,

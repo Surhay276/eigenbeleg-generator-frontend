@@ -22,6 +22,10 @@ export interface Receipt {
   vatRate: VatRate
   reason: string
   paymentMethod: PaymentMethod
+  /** Kopie des Firmennamens beim Speichern; null, solange es keine Firmendaten gibt */
+  issuerName: string | null
+  /** Kopie der Firmenanschrift beim Speichern */
+  issuerAddress: string | null
   /** ISO-Zeitstempel (Java Instant) */
   createdAt: string
   /** Bleibt bis zum Login null */
