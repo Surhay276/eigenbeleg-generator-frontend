@@ -32,9 +32,15 @@ const totalCents = computed(() => props.receipts.reduce((sum, r) => sum + r.amou
     <div v-else class="table-wrapper">
       <table>
         <caption>
-          {{ sortedReceipts.length }}
-          {{ sortedReceipts.length === 1 ? 'Beleg' : 'Belege' }}, Summe
-          {{ formatCents(totalCents) }}
+          {{
+            sortedReceipts.length
+          }}
+          {{
+            sortedReceipts.length === 1 ? 'Beleg' : 'Belege'
+          }}, Summe
+          {{
+            formatCents(totalCents)
+          }}
         </caption>
         <thead>
           <tr>

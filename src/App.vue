@@ -13,7 +13,8 @@ import { sampleReceipts } from './data/sampleReceipts'
   <main class="container">
     <h1>Meine Belege</h1>
     <p class="hint">
-      Beispieldaten – die Belege werden später vom Backend geladen und können selbst erstellt werden.
+      Beispieldaten – die Belege werden später vom Backend geladen und können selbst erstellt
+      werden.
     </p>
     <ReceiptList :receipts="sampleReceipts" />
   </main>
