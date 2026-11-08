@@ -13,33 +13,46 @@ Frontend des Webtech-Projekts „Eigenbeleg Generator“ (HTW Berlin, Team 31): 
 | --- | --- |
 | Vue.js-App auf GitHub | Vue 3 mit TypeScript und Vite |
 | Eigene Komponente | `src/components/ReceiptList.vue` |
-| Liste von Beispiel-Entitäten mit `v-for` | `ReceiptList.vue` rendert die Beispielbelege aus `src/data/sampleReceipts.ts` mit `v-for` als Tabelle (Use Case UC-06 „Belegverlauf anzeigen“) |
+| Liste von Beispiel-Entitäten mit `v-for` | `ReceiptList.vue` rendert die Beispielbelege aus `src/data/sampleReceipts.ts` mit `v-for` als Tabelle (Use Case UC-05 „Belegverlauf anzeigen“) |
 
-Die Beispielbelege haben dieselben Felder wie die Entity `Receipt` im Backend (`src/types/receipt.ts`). Ab M3 werden sie über `GET /api/receipts` vom Backend geladen.
+Die Beispielbelege haben dieselben Felder wie die Entity `Receipt` im Backend (`src/types/receipt.ts`).
+
+## Meilenstein M3: Anbindung an das Backend
+
+| M3-Anforderung | Umsetzung |
+| --- | --- |
+| Frontend ruft die GET-Route auf | `src/api/receipts.ts` lädt `GET /api/receipts`, `App.vue` zeigt die Belege mit `ReceiptList.vue` an |
+| Adresse des Backends | Umgebungsvariable `VITE_API_BASE_URL`: lokal aus `.env.development`, auf Render in den Einstellungen der Static Site |
+| Lade- und Fehlerzustand | Hinweis „Belege werden geladen …“ und bei Fehlern eine Meldung mit „Erneut laden“ (UC-05, 3b) |
+| Deployment | Render Static Site, Anleitung im Backend-Repository unter `docs/deployment.md` |
+
+Die Beispielbelege in `src/data/sampleReceipts.ts` werden jetzt nur noch in den Tests verwendet.
 
 ## Projektstruktur
 
 ```text
 src/
-├── App.vue                     Seitenrahmen und Seite „Meine Belege“
+├── App.vue                     Seite „Meine Belege“: lädt die Belege und zeigt Lade-/Fehlerzustand
+├── api/receipts.ts             Aufruf von GET /api/receipts im Backend
 ├── components/
 │   ├── ReceiptList.vue         Belegliste (v-for), sortiert, mit Summe und Leerzustand
 │   └── __tests__/              Komponententests (Vitest)
-├── data/sampleReceipts.ts      Beispielbelege für M2
+├── data/sampleReceipts.ts      Beispielbelege für die Tests
+├── router/index.ts             Vue Router
 ├── types/receipt.ts            TypeScript-Typ der Entity Receipt
 └── utils/format.ts             Euro-, Datums- und Bezeichnungsformatierung
 ```
 
 ## Lokal starten
 
-Voraussetzung: Node.js 22.18 oder neuer (bzw. 24.12 oder neuer).
+Voraussetzung: Node.js 22.18 oder neuer (bzw. 24.12 oder neuer). Das Backend muss laufen (im Backend-Ordner `./gradlew bootRun`, Port 8080).
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-Die App läuft danach unter <http://localhost:5173>.
+Die App läuft danach unter <http://localhost:5173> und lädt die Belege von <http://localhost:8080>.
 
 | Befehl | Zweck |
 | --- | --- |

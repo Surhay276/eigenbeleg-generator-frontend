@@ -1,6 +1,26 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import ReceiptList from './components/ReceiptList.vue'
-import { sampleReceipts } from './data/sampleReceipts'
+import { fetchReceipts } from './api/receipts'
+import type { Receipt } from './types/receipt'
+
+const receipts = ref<Receipt[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+async function loadReceipts() {
+  loading.value = true
+  error.value = null
+  try {
+    receipts.value = await fetchReceipts()
+  } catch {
+    error.value = 'Die Belege konnten nicht geladen werden. Bitte versuche es erneut.'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadReceipts)
 </script>
 
 <template>
@@ -12,11 +32,14 @@ import { sampleReceipts } from './data/sampleReceipts'
 
   <main class="container">
     <h1>Meine Belege</h1>
-    <p class="hint">
-      Beispieldaten – die Belege werden später vom Backend geladen und können selbst erstellt
-      werden.
+    <p v-if="loading" class="status" data-test="loading">
+      Belege werden geladen … Beim ersten Aufruf kann das bis zu einer Minute dauern.
     </p>
-    <ReceiptList :receipts="sampleReceipts" />
+    <div v-else-if="error" class="status error" role="alert" data-test="error">
+      <p>{{ error }}</p>
+      <button type="button" @click="loadReceipts">Erneut laden</button>
+    </div>
+    <ReceiptList v-else :receipts="receipts" />
   </main>
 </template>
 
@@ -97,8 +120,30 @@ h1 {
   font-size: 1.6rem;
 }
 
-.hint {
-  margin: 0 0 1.25rem;
+.status {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   color: var(--muted);
+}
+
+.status.error {
+  color: var(--text);
+  border-color: var(--badge-purchase-fg);
+}
+
+.status p {
+  margin: 0 0 0.75rem;
+}
+
+.status button {
+  font: inherit;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--accent);
+  cursor: pointer;
 }
 </style>
