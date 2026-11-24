@@ -29,3 +29,10 @@ export const paymentMethodLabel: Record<PaymentMethod, string> = {
   UEBERWEISUNG: 'Überweisung',
   KARTE: 'Karte',
 }
+
+/** "4,50" -> 450, "12" -> 1200, "0,5" -> 50; null, wenn die Eingabe kein Betrag ist. Rechnet ohne Kommazahlen, damit nichts gerundet wird. */
+export function parseEuroToCents(input: string): number | null {
+  const match = /^(\d+)(?:[,.](\d{1,2}))?$/.exec(input.replace(/[\s€]/g, ''))
+  if (!match) return null
+  return Number(match[1]) * 100 + Number((match[2] ?? '').padEnd(2, '0'))
+}

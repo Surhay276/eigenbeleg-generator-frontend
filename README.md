@@ -28,19 +28,29 @@ Die Beispielbelege haben dieselben Felder wie die Entity `Receipt` im Backend (`
 
 Die Beispielbelege in `src/data/sampleReceipts.ts` werden jetzt nur noch in den Tests verwendet.
 
+## Meilenstein M4: Belege speichern
+
+| M4-Anforderung | Umsetzung |
+| --- | --- |
+| Frontend ruft die POST-Route auf | `src/components/ReceiptForm.vue` schickt den Beleg über `createReceipt` (`src/api/receipts.ts`) an `POST /api/receipts`; das Backend speichert ihn in PostgreSQL |
+| Formular | `/belege/neu?typ=allgemein` (UC-03) und `/belege/neu?typ=ankauf` (UC-04) mit Vorbelegungen; „4,50“ wird als 450 Cent gesendet |
+| Fehler | Meldungen des Backends (HTTP 400) erscheinen am jeweiligen Feld; bei Verbindungsfehlern bleiben die Eingaben erhalten |
+| Nach dem Speichern | Zurück zu „Meine Belege“ mit „Beleg EB-JJJJ-NNNN gespeichert.“; die Liste lädt neu und zeigt den Beleg |
+
 ## Projektstruktur
 
 ```text
 src/
 ├── App.vue                     Seite „Meine Belege“: lädt die Belege und zeigt Lade-/Fehlerzustand
-├── api/receipts.ts             Aufruf von GET /api/receipts im Backend
+├── api/receipts.ts             Aufrufe von GET und POST /api/receipts im Backend
 ├── components/
+│   ├── ReceiptForm.vue         Formular für allgemeinen und Ankaufbeleg
 │   ├── ReceiptList.vue         Belegliste (v-for), sortiert, mit Summe und Leerzustand
 │   └── __tests__/              Komponententests (Vitest)
 ├── data/sampleReceipts.ts      Beispielbelege für die Tests
 ├── router/index.ts             Vue Router
 ├── types/receipt.ts            TypeScript-Typ der Entity Receipt
-└── utils/format.ts             Euro-, Datums- und Bezeichnungsformatierung
+└── utils/format.ts             Euro-, Datums- und Bezeichnungsformatierung, Euro-Eingabe in Cent
 ```
 
 ## Lokal starten

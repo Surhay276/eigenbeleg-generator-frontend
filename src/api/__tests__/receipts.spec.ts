@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { fetchReceipts } from '../receipts'
+import { createReceipt, fetchReceipts, ValidationError } from '../receipts'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -33,5 +33,59 @@ describe('fetchReceipts', () => {
     )
 
     await expect(fetchReceipts()).rejects.toThrow('HTTP 503')
+  })
+})
+
+describe('createReceipt', () => {
+  const input = {
+    type: 'ALLGEMEIN',
+    issueDate: '2026-10-01',
+    paymentDate: '2026-09-30',
+    payeeName: 'Parkhaus',
+    payeeAddress: null,
+    description: 'Parken',
+    amountCents: 450,
+    vatRate: 'REGELSATZ_19',
+    reason: 'Keine Quittung',
+    paymentMethod: 'BAR',
+  } as const
+
+  it('schickt den Beleg als JSON per POST und gibt den gespeicherten Beleg zurück', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'https://backend.example')
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response('{"number":"EB-2026-0001"}', { status: 201 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(createReceipt(input)).resolves.toEqual({ number: 'EB-2026-0001' })
+    expect(fetchMock).toHaveBeenCalledWith('https://backend.example/api/receipts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+  })
+
+  it('wirft bei HTTP 400 einen ValidationError mit den Feldmeldungen', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'https://backend.example')
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(new Response('{"amountCents":"zu klein"}', { status: 400 })),
+    )
+
+    const error = await createReceipt(input).catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(ValidationError)
+    expect((error as ValidationError).fieldErrors).toEqual({ amountCents: 'zu klein' })
+  })
+
+  it('wirft bei anderen Fehlern einen Fehler mit HTTP-Status', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'https://backend.example')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>().mockResolvedValue(new Response('', { status: 500 })),
+    )
+
+    await expect(createReceipt(input)).rejects.toThrow('HTTP 500')
   })
 })

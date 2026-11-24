@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
+import { createMemoryHistory, createRouter } from 'vue-router'
 
 import App from '../App.vue'
 import { sampleReceipts } from '../data/sampleReceipts'
@@ -11,6 +12,15 @@ function jsonResponse(data: unknown, status = 200) {
   })
 }
 
+// App enthält RouterLinks zum Formular und braucht deshalb einen Router
+function mountApp() {
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [{ path: '/:pathMatch(.*)*', component: { template: '<p />' } }],
+  })
+  return mount(App, { global: { plugins: [router] } })
+}
+
 beforeEach(() => {
   vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
 })
@@ -18,6 +28,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.unstubAllEnvs()
+  window.history.replaceState(null, '')
 })
 
 describe('App', () => {
@@ -27,7 +38,7 @@ describe('App', () => {
       vi.fn<typeof fetch>(() => new Promise(() => {})),
     )
 
-    const wrapper = mount(App)
+    const wrapper = mountApp()
 
     expect(wrapper.find('[data-test="loading"]').exists()).toBe(true)
     expect(wrapper.findAll('[data-test="receipt-row"]')).toHaveLength(0)
@@ -37,7 +48,7 @@ describe('App', () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(sampleReceipts))
     vi.stubGlobal('fetch', fetchMock)
 
-    const wrapper = mount(App)
+    const wrapper = mountApp()
     await flushPromises()
 
     expect(fetchMock).toHaveBeenCalledWith('http://localhost:8080/api/receipts')
@@ -53,7 +64,7 @@ describe('App', () => {
       .mockResolvedValueOnce(jsonResponse(sampleReceipts))
     vi.stubGlobal('fetch', fetchMock)
 
-    const wrapper = mount(App)
+    const wrapper = mountApp()
     await flushPromises()
 
     expect(wrapper.find('[data-test="error"]').text()).toContain('nicht geladen werden')
@@ -70,9 +81,21 @@ describe('App', () => {
   it('behandelt eine Fehlerantwort des Backends wie einen Ladefehler', async () => {
     vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({}, 500)))
 
-    const wrapper = mount(App)
+    const wrapper = mountApp()
     await flushPromises()
 
     expect(wrapper.find('[data-test="error"]').exists()).toBe(true)
+  })
+
+  it('verlinkt beide Formulare und meldet einen gerade gespeicherten Beleg', async () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(jsonResponse([])))
+    window.history.replaceState({ saved: 'EB-2026-0004' }, '')
+
+    const wrapper = mountApp()
+    await flushPromises()
+
+    const links = wrapper.findAll('nav a').map((a) => a.attributes('href'))
+    expect(links).toEqual(['/belege/neu?typ=allgemein', '/belege/neu?typ=ankauf'])
+    expect(wrapper.get('[data-test="saved"]').text()).toBe('Beleg EB-2026-0004 gespeichert.')
   })
 })

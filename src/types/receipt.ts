@@ -31,3 +31,9 @@ export interface Receipt {
   /** Bleibt bis zum Login null */
   ownerId: string | null
 }
+
+/** Was das Formular an POST /api/receipts schickt; id, number, createdAt usw. setzt das Backend. */
+export type ReceiptInput = Omit<
+  Receipt,
+  'id' | 'number' | 'createdAt' | 'ownerId' | 'issuerName' | 'issuerAddress'
+>

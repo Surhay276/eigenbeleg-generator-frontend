@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import ReceiptList from './components/ReceiptList.vue'
 import { fetchReceipts } from './api/receipts'
 import type { Receipt } from './types/receipt'
@@ -7,6 +8,8 @@ import type { Receipt } from './types/receipt'
 const receipts = ref<Receipt[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+// Nummer des gerade gespeicherten Belegs, mitgegeben von ReceiptForm über router.push({ state })
+const savedNumber = (window.history.state as { saved?: string } | null)?.saved
 
 async function loadReceipts() {
   loading.value = true
@@ -32,6 +35,13 @@ onMounted(loadReceipts)
 
   <main class="container">
     <h1>Meine Belege</h1>
+    <nav class="actions">
+      <RouterLink to="/belege/neu?typ=allgemein">Neuer Eigenbeleg</RouterLink>
+      <RouterLink to="/belege/neu?typ=ankauf">Neuer Ankaufbeleg</RouterLink>
+    </nav>
+    <p v-if="savedNumber" class="status success" role="status" data-test="saved">
+      Beleg {{ savedNumber }} gespeichert.
+    </p>
     <p v-if="loading" class="status" data-test="loading">
       Belege werden geladen … Beim ersten Aufruf kann das bis zu einer Minute dauern.
     </p>
@@ -56,6 +66,7 @@ onMounted(loadReceipts)
   --badge-general-fg: #1d4ed8;
   --badge-purchase-bg: #fdecc8;
   --badge-purchase-fg: #8a4b00;
+  --error: #b42318;
   color-scheme: light dark;
 }
 
@@ -72,6 +83,7 @@ onMounted(loadReceipts)
     --badge-general-fg: #a9c3ff;
     --badge-purchase-bg: #4a3512;
     --badge-purchase-fg: #f5c97a;
+    --error: #ff8a80;
   }
 }
 
@@ -135,6 +147,27 @@ h1 {
 
 .status p {
   margin: 0 0 0.75rem;
+}
+
+.status.success {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.actions a {
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--surface);
+  text-decoration: none;
+  font-weight: 600;
 }
 
 .status button {
