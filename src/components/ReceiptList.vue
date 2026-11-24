@@ -20,7 +20,12 @@ const sortedReceipts = computed(() =>
   ),
 )
 
-const totalCents = computed(() => props.receipts.reduce((sum, r) => sum + r.amountCents, 0))
+// Tabellenüberschrift, z. B. „3 Belege, Summe 189,50 €“
+const summary = computed(() => {
+  const count = props.receipts.length
+  const totalCents = props.receipts.reduce((sum, r) => sum + r.amountCents, 0)
+  return `${count} ${count === 1 ? 'Beleg' : 'Belege'}, Summe ${formatCents(totalCents)}`
+})
 </script>
 
 <template>
@@ -33,13 +38,7 @@ const totalCents = computed(() => props.receipts.reduce((sum, r) => sum + r.amou
       <table>
         <caption>
           {{
-            sortedReceipts.length
-          }}
-          {{
-            sortedReceipts.length === 1 ? 'Beleg' : 'Belege'
-          }}, Summe
-          {{
-            formatCents(totalCents)
+            summary
           }}
         </caption>
         <thead>
